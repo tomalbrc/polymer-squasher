@@ -1,4 +1,4 @@
-package de.tomalbrc.polymeroptimizer.impl;
+package de.tomalbrc.polymersquasher.impl;
 
 import net.fabricmc.loader.api.FabricLoader;
 

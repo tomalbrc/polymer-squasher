@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "de.tomalbrc.polymeroptimizer.mixin",
+  "package": "de.tomalbrc.polymersquasher.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "DefaultRPBuilderMixin"

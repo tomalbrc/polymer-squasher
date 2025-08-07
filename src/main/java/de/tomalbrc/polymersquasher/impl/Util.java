@@ -1,10 +1,9 @@
-package de.tomalbrc.polymeroptimizer.impl;
+package de.tomalbrc.polymersquasher.impl;
 
-import de.tomalbrc.polymeroptimizer.PolymerOptimizer;
+import de.tomalbrc.polymersquasher.PolymerSquasher;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -18,7 +17,7 @@ public class Util {
         try {
             PackSquashRunner.run(outputPath, FabricLoader.getInstance().getGameDir().resolve(ModConfig.getInstance().packsquash), FabricLoader.getInstance().getGameDir().resolve(ModConfig.getInstance().packsquashConfig));
         } catch (IOException | InterruptedException e) {
-            PolymerOptimizer.LOGGER.warn("PackSquash failed", e);
+            PolymerSquasher.LOGGER.warn("PackSquash failed", e);
             e.printStackTrace();
             return false;
         }
@@ -33,13 +32,13 @@ public class Util {
                 byte[] data = entry.getValue();
 
                 if (relativePath.isBlank()) {
-                    PolymerOptimizer.LOGGER.info("Found empty file path!");
+                    PolymerSquasher.LOGGER.info("Found empty file path!");
                     continue;
                 }
 
                 Path fullPath = PACK.resolve(relativePath);
                 if (relativePath.endsWith("/")) {
-                    PolymerOptimizer.LOGGER.info("This should not happen!");
+                    PolymerSquasher.LOGGER.info("This should not happen!");
                     Files.createDirectories(fullPath);
                 } else {
                     Files.createDirectories(fullPath.getParent());
@@ -55,7 +54,7 @@ public class Util {
                 }
             }
         } catch (IOException e) {
-            PolymerOptimizer.LOGGER.warn("Failed to write to directory!", e);
+            PolymerSquasher.LOGGER.warn("Failed to write to directory!", e);
             e.printStackTrace();
             return false;
         }

@@ -1,6 +1,6 @@
-package de.tomalbrc.polymeroptimizer.mixin;
+package de.tomalbrc.polymersquasher.mixin;
 
-import de.tomalbrc.polymeroptimizer.impl.Util;
+import de.tomalbrc.polymersquasher.impl.Util;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;

@@ -1,12 +1,9 @@
-package de.tomalbrc.polymeroptimizer.impl;
+package de.tomalbrc.polymersquasher.impl;
 
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.FileNotFoundException;
@@ -15,10 +12,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class ModConfig {
-    static Path CONFIG_FILE_PATH = FabricLoader.getInstance().getConfigDir().resolve("polymer-optimizer.json");
+    static Path CONFIG_FILE_PATH = FabricLoader.getInstance().getConfigDir().resolve("polymer-squasher.json");
     static ModConfig instance;
     static Gson JSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -26,7 +22,7 @@ public class ModConfig {
     public boolean enabled = true;
 
     @SerializedName("log-packsquash")
-    public boolean log = true;
+    public boolean log = false;
 
     @SerializedName("packsquash-path")
     public String packsquash = "polymer/packsquash";

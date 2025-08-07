@@ -1,25 +1,26 @@
 {
   "schemaVersion": 1,
-  "id": "polymer-optimizer",
+  "id": "polymer-squasher",
   "version": "${version}",
-  "name": "polymer-optimizer",
+  "name": "polymer-squasher",
   "description": "",
   "authors": [],
   "contact": {},
   "license": "LGPL-3.0",
-  "icon": "assets/polymer-optimizer/icon.png",
+  "icon": "ps-icon.png",
   "environment": "server",
   "entrypoints": {
     "main": [
-      "de.tomalbrc.polymeroptimizer.PolymerOptimizer"
+      "de.tomalbrc.polymersquasher.PolymerSquasher"
     ]
   },
   "mixins": [
-    "polymer-optimizer.mixins.json"
+    "polymer-squasher.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=${loader_version}",
+    "fabricloader": "*",
     "fabric": "*",
-    "minecraft": "${minecraft_version}"
+    "polymer-resource-pack": "*",
+    "minecraft": ">=1.21"
   }
 }
