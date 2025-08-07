@@ -13,14 +13,9 @@ This mod integrates [PackSquash](https://packsquash.dev) with Polymer’s resour
   polymer/packsquash
   ```
 
-- Create or get [an example](https://gist.github.com/Boy0000/92149d2704b6086473fccb4d771c42b4) `packsquash.toml` file.
-- Place it in the same directory:
+- The mod will automatically create a `packsquash.toml` in the `polymer` folder.
 
-  ```
-  polymer/packsquash.toml
-  ```
-
-These are the default paths the mod will use. You can adjust them in the configuration file `config/polymer-optimizer.json`:
+These are the default paths the mod will use. You can adjust them in the configuration file `config/polymer-squasher.json`:
 
 ```json
 {
