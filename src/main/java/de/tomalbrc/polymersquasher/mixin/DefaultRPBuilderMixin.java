@@ -1,5 +1,7 @@
 package de.tomalbrc.polymersquasher.mixin;
 
+import de.tomalbrc.polymersquasher.impl.FileHashes;
+import de.tomalbrc.polymersquasher.impl.ModConfig;
 import de.tomalbrc.polymersquasher.impl.Util;
 import eu.pb4.polymer.resourcepack.impl.generation.DefaultRPBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -25,8 +27,16 @@ public class DefaultRPBuilderMixin {
 
     @Inject(method = "writeSingleZip", at = @At("HEAD"), cancellable = true)
     private void po$onWrite(CallbackInfoReturnable<Boolean> cir) {
-        if (Util.writeToDirectory(fileMap, converters) && Util.runPackSquash(outputPath)) {
+        FileHashes.load();
+
+        if (ModConfig.getInstance().enabled && Util.writeToDirectory(fileMap, converters) && Util.runPackSquash(outputPath)) {
+            if (Util.writeToDirectory(fileMap, converters)) {
+                Util.runPackSquash(outputPath);
+            }
+
             cir.setReturnValue(true);
         }
+
+        FileHashes.save();
     }
 }

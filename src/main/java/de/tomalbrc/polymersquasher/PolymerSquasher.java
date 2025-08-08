@@ -15,6 +15,12 @@ public class PolymerSquasher implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        copyToml();
+
+        ServerLifecycleEvents.START_DATA_PACK_RELOAD.register((minecraftServer, closeableResourceManager) -> ModConfig.load());
+    }
+
+    private void copyToml() {
         var tomlName = "packsquash.toml";
         var packsquashConfigPath = FabricLoader.getInstance().getGameDir().resolve(ModConfig.getInstance().packsquashConfig);
         var parent = packsquashConfigPath.getParent();
@@ -25,9 +31,5 @@ public class PolymerSquasher implements ModInitializer {
                 LOGGER.warn("Could not copy {}", tomlName);
             }
         }
-
-        ServerLifecycleEvents.START_DATA_PACK_RELOAD.register((minecraftServer, closeableResourceManager) -> {
-            ModConfig.load();
-        });
     }
 }

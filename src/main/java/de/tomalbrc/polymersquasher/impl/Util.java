@@ -15,6 +15,7 @@ public class Util {
 
     public static boolean runPackSquash(Path outputPath) {
         try {
+            PolymerSquasher.LOGGER.info("Running packsquash... This might take a while!");
             PackSquashRunner.run(outputPath, FabricLoader.getInstance().getGameDir().resolve(ModConfig.getInstance().packsquash), FabricLoader.getInstance().getGameDir().resolve(ModConfig.getInstance().packsquashConfig));
         } catch (IOException | InterruptedException e) {
             PolymerSquasher.LOGGER.warn("PackSquash failed", e);
@@ -25,14 +26,19 @@ public class Util {
         return true;
     }
 
+    /**
+     * Returns true if changes to the rp were made
+     */
     public static boolean writeToDirectory(Map<String, byte[]> fileMap, List<BiFunction<String, byte[], byte[]>> converters) {
+        boolean dirty = false;
         try {
             for (Map.Entry<String, byte[]> entry : fileMap.entrySet()) {
                 String relativePath = entry.getKey();
                 byte[] data = entry.getValue();
 
                 if (relativePath.isBlank()) {
-                    PolymerSquasher.LOGGER.info("Found empty file path!");
+                    var s = new String(data);
+                    PolymerSquasher.LOGGER.info("Found empty file path! {}", s);
                     continue;
                 }
 
@@ -42,13 +48,22 @@ public class Util {
                     Files.createDirectories(fullPath);
                 } else {
                     Files.createDirectories(fullPath.getParent());
+
                     if (data != null) {
                         for (var conv : converters) {
                             data = conv.apply(relativePath, data);
                             if (data == null) break;
                         }
+
+                        if (fullPath.toFile().exists()) {
+                            var e = FileHashes.addExists(relativePath, data);
+                            if (e)
+                                continue;
+                        }
+
                         if (data != null) {
                             Files.write(fullPath, data);
+                            dirty = true;
                         }
                     }
                 }
@@ -58,6 +73,7 @@ public class Util {
             e.printStackTrace();
             return false;
         }
-        return true;
+
+        return dirty;
     }
 }
