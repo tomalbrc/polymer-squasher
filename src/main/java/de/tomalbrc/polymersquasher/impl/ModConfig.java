@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
 
 public class ModConfig {
     static Path CONFIG_FILE_PATH = FabricLoader.getInstance().getConfigDir().resolve("polymer-squasher.json");
@@ -29,6 +30,9 @@ public class ModConfig {
 
     @SerializedName("packsquash-toml-path")
     public String packsquashConfig = "polymer/packsquash.toml";
+
+    @SerializedName("ignore-hash-paths")
+    public List<String> ignoreList = List.of("polymer-credits.txt");
 
     public static ModConfig getInstance() {
         if (instance == null) {

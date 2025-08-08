@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class FileHashes {
     final static Path FILE = FabricLoader.getInstance().getGameDir().resolve("polymer/hashes.json");
-    final static Map<String, Long> HASHES = new Object2LongLinkedOpenHashMap<>();
+    static Map<String, Long> HASHES = new Object2LongLinkedOpenHashMap<>();
     final static MessageDigest MESSAGE_DIGEST;
 
     static {
@@ -39,6 +39,16 @@ public class FileHashes {
             boolean sameHash = existing.equals(hash(data));
             if (!sameHash) {
                 HASHES.put(path, hashed);
+                PolymerSquasher.LOGGER.info("Different hash: {}", path);
+
+                if (ModConfig.getInstance().ignoreList != null && !ModConfig.getInstance().ignoreList.isEmpty()) {
+                    for (String s : ModConfig.getInstance().ignoreList) {
+                        if (path.startsWith(s)) {
+                            PolymerSquasher.LOGGER.info("Ignoring different hash for {}", path);
+                            return true;
+                        }
+                    }
+                }
             }
             return sameHash;
         }
@@ -62,9 +72,7 @@ public class FileHashes {
         Gson gson = new Gson();
         Type type = new TypeToken<Map<String, Long>>() {}.getType();
         try (FileReader reader = new FileReader(FILE.toFile())) {
-            Map<String, Long> loaded = gson.fromJson(reader, type);
-            HASHES.clear();
-            HASHES.putAll(loaded);
+            HASHES = gson.fromJson(reader, type);
         } catch (FileNotFoundException ignored) {
 
         }  catch (Exception e) {
