@@ -39,12 +39,12 @@ public class FileHashes {
             boolean sameHash = existing.equals(hash(data));
             if (!sameHash) {
                 HASHES.put(path, hashed);
-                PolymerSquasher.LOGGER.info("Different hash: {}", path);
+                if (ModConfig.getInstance().logMismatch) PolymerSquasher.LOGGER.info("Different hash: {}", path);
 
                 if (ModConfig.getInstance().ignoreList != null && !ModConfig.getInstance().ignoreList.isEmpty()) {
                     for (String s : ModConfig.getInstance().ignoreList) {
                         if (path.startsWith(s)) {
-                            PolymerSquasher.LOGGER.info("Ignoring different hash for {}", path);
+                            PolymerSquasher.LOGGER.info("Ignoring hash mismatch for {}", path);
                             return true;
                         }
                     }

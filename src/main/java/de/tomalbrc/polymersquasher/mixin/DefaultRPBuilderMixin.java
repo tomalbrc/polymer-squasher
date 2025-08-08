@@ -27,16 +27,18 @@ public class DefaultRPBuilderMixin {
 
     @Inject(method = "writeSingleZip", at = @At("HEAD"), cancellable = true)
     private void po$onWrite(CallbackInfoReturnable<Boolean> cir) {
-        FileHashes.load();
+        if (ModConfig.getInstance().enabled) {
+            FileHashes.load();
 
-        if (ModConfig.getInstance().enabled && Util.writeToDirectory(fileMap, converters) && Util.runPackSquash(outputPath)) {
-            if (Util.writeToDirectory(fileMap, converters)) {
-                Util.runPackSquash(outputPath);
+            if (Util.writeToDirectory(fileMap, converters) && Util.runPackSquash(outputPath)) {
+                if (Util.writeToDirectory(fileMap, converters)) {
+                    Util.runPackSquash(outputPath);
+                }
+
+                cir.setReturnValue(true);
             }
 
-            cir.setReturnValue(true);
+            FileHashes.save();
         }
-
-        FileHashes.save();
     }
 }
