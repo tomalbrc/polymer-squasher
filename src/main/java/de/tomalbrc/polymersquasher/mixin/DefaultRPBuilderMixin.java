@@ -34,9 +34,9 @@ public class DefaultRPBuilderMixin {
                 if (Util.writeToDirectory(fileMap, converters)) {
                     Util.runPackSquash(outputPath);
                 }
-
-                cir.setReturnValue(true);
             }
+
+            cir.setReturnValue(outputPath.toFile().exists());
 
             FileHashes.save();
         }
