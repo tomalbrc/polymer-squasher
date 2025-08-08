@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -30,13 +31,14 @@ public class DefaultRPBuilderMixin {
         if (ModConfig.getInstance().enabled) {
             FileHashes.load();
 
-            if (Util.writeToDirectory(fileMap, converters) && Util.runPackSquash(outputPath)) {
+            if ((Util.writeToDirectory(fileMap, converters) || !outputPath.toFile().exists()) && Util.runPackSquash(outputPath)) {
                 if (Util.writeToDirectory(fileMap, converters)) {
                     Util.runPackSquash(outputPath);
                 }
             }
 
-            cir.setReturnValue(true);
+            if (outputPath.toFile().exists())
+                cir.setReturnValue(true);
 
             FileHashes.save();
         }
