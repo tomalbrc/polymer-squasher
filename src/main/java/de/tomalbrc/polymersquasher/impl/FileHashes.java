@@ -55,6 +55,9 @@ public class FileHashes {
     }
 
     public static Long hash(byte[] data) {
+        if (ModConfig.getInstance().sizeHash)
+            return (long) data.length;
+
         MESSAGE_DIGEST.update(data);
         return xorFold(MESSAGE_DIGEST.digest());
     }

@@ -34,6 +34,9 @@ public class ModConfig {
     @SerializedName("ignore-hash-paths")
     public List<String> ignoreList = List.of("polymer-credits.txt");
 
+    @SerializedName("force-size-based-hash")
+    public boolean sizeHash = false;
+
     public static ModConfig getInstance() {
         if (instance == null) {
             if (!load()) // only save if file wasn't just created
