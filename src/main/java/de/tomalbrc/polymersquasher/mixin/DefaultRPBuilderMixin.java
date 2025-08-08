@@ -34,12 +34,12 @@ public class DefaultRPBuilderMixin {
 
             var hadChange = Util.writeToDirectory(fileMap, converters);
             if (hadChange) {
-                if (Util.runPackSquash(Util.MIN_FILE)) {
-                    try {
-                        Files.copy(Util.MIN_FILE, outputPath);
-                    } catch (IOException ignored) {}
-                }
+                Util.runPackSquash(Util.MIN_FILE);
             }
+
+            try {
+                Files.copy(Util.MIN_FILE, outputPath);
+            } catch (IOException ignored) {}
 
             if (outputPath.toFile().exists()) {
                 cir.setReturnValue(true);
