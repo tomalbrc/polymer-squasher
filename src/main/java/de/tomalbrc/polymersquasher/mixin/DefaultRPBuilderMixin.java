@@ -36,7 +36,7 @@ public class DefaultRPBuilderMixin {
                 }
             }
 
-            cir.setReturnValue(outputPath.toFile().exists());
+            cir.setReturnValue(true);
 
             FileHashes.save();
         }
