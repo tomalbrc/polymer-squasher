@@ -12,6 +12,7 @@ import java.util.function.BiFunction;
 
 public class Util {
     public static final Path PACK = FabricLoader.getInstance().getGameDir().resolve("polymer/pack");
+    public static final Path MIN_FILE = FabricLoader.getInstance().getGameDir().resolve("polymer/resource_pack.min.zip");
 
     public static boolean runPackSquash(Path outputPath) {
         try {
