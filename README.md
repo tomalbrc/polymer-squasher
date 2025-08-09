@@ -15,21 +15,43 @@ This mod integrates [PackSquash](https://packsquash.dev) with Polymer’s resour
 
 - The mod will automatically create a `packsquash.toml` in the `polymer` folder.
 
-These are the default paths the mod will use. You can adjust them in the configuration file `config/polymer-squasher.json`:
+These are the default paths the mod will use. You can adjust them in the configuration file `config/polymer-squasher.json`
 
+### Default config
 ```json
 {
   "enabled": true,
   "log-packsquash": false,
+  "log-hash-mismatch": false,
   "packsquash-path": "polymer/packsquash",
-  "packsquash-toml-path": "polymer/packsquash.toml"
+  "packsquash-toml-path": "polymer/packsquash.toml",
+  "ignore-hash-paths": [
+    "polymer-credits.txt"
+  ],
+  "force-size-based-hash": false
 }
 ```
+
+## Config options
+
+- **enabled** — turn the integration on/off.  
+- **log-packsquash** — print PackSquash output to the log.  
+- **log-hash-mismatch** — log when a file’s hash changes (useful for debugging).  
+- **packsquash-path** — path to the PackSquash binary.  
+- **packsquash-toml-path** — path to the PackSquash TOML config file.  
+- **ignore-hash-paths** — list of path **prefixes** to skip when hashing.  
+- **force-size-based-hash** — if `true`, the mod will use file size instead of a full hash (faster, less precise) 
+
+
 
 ---
 
 ## How it works
 
-When enabled, the mod will run PackSquash after Polymer finishes generating the resource pack. If the process completes successfully, the optimized version is used instead.
+When enabled, the mod will hash the generated resource pack files. The hashes are written to `polymer/hashes.json`.
 
-If PackSquash encounters an error, it will print detailed output indicating which file caused the issue and why. If debug logging is enabled, you'll also see information about successfully processed files.
+If nothing has changed since the last run, PackSquash is skipped.  
+
+If changes are detected, the mod will run PackSquash after Polymer finishes generating the resource pack.  
+
+If the process completes successfully, the optimized version is used instead.
