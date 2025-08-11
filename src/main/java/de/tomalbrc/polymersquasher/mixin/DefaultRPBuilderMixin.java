@@ -33,21 +33,24 @@ public class DefaultRPBuilderMixin {
             FileHashes.load();
 
             var hadChange = Util.writeToDirectory(fileMap, converters);
+            boolean success = true;
             if (hadChange) {
-                Util.runPackSquash(Util.MIN_FILE);
+                success = Util.runPackSquash(Util.MIN_FILE);
             }
 
-            try {
-                Files.copy(Util.MIN_FILE, outputPath);
-            } catch (IOException ignored) {}
-
-            if (outputPath.toFile().exists()) {
-                cir.setReturnValue(true);
-            }
-            else {
+            if (success) {
                 try {
-                    Files.deleteIfExists(outputPath);
+                    Files.copy(Util.MIN_FILE, outputPath);
                 } catch (IOException ignored) {}
+
+                if (outputPath.toFile().exists()) {
+                    cir.setReturnValue(true);
+                }
+                else {
+                    try {
+                        Files.deleteIfExists(outputPath);
+                    } catch (IOException ignored) {}
+                }
             }
 
             FileHashes.save();

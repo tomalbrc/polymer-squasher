@@ -48,7 +48,6 @@ public class Util {
                     PolymerSquasher.LOGGER.info("This should not happen!");
                     Files.createDirectories(fullPath);
                 } else {
-                    Files.createDirectories(fullPath.getParent());
 
                     if (data != null) {
                         for (var conv : converters) {
@@ -58,6 +57,8 @@ public class Util {
                     }
 
                     if (data != null) {
+                        Files.createDirectories(fullPath.getParent());
+
                         if (fullPath.toFile().exists()) {
                             var e = FileHashes.addExists(relativePath, data);
                             if (e)
