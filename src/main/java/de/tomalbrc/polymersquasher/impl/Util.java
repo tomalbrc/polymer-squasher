@@ -55,17 +55,17 @@ public class Util {
                             data = conv.apply(relativePath, data);
                             if (data == null) break;
                         }
+                    }
 
+                    if (data != null) {
                         if (fullPath.toFile().exists()) {
                             var e = FileHashes.addExists(relativePath, data);
                             if (e)
                                 continue;
                         }
 
-                        if (data != null) {
-                            Files.write(fullPath, data);
-                            dirty = true;
-                        }
+                        Files.write(fullPath, data);
+                        dirty = true;
                     }
                 }
             }

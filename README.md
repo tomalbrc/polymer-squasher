@@ -42,8 +42,6 @@ These are the default paths the mod will use. You can adjust them in the configu
 - **ignore-hash-paths** — list of path **prefixes** to skip when hashing.  
 - **force-size-based-hash** — if `true`, the mod will use file size instead of a full hash (faster, less precise) 
 
-
-
 ---
 
 ## How it works
