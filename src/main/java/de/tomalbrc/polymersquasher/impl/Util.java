@@ -31,11 +31,16 @@ public class Util {
     /**
      * Returns true if changes to the rp were made
      */
-    public static boolean writeToDirectory(Map<String, PackResource> fileMap, List<ResourcePackBuilder.ResourceConverter> converters) {
+    public static boolean writeToDirectory(List<Map.Entry<String, PackResource>> fileMap, List<ResourcePackBuilder.ResourceConverter> converters) {
         boolean dirty = false;
         try {
-            for (Map.Entry<String, PackResource> entry : fileMap.entrySet()) {
+            for (Map.Entry<String, PackResource> entry : fileMap) {
                 String relativePath = entry.getKey();
+                if (entry.getValue() == null) {
+                    PolymerSquasher.LOGGER.info("Found empty data for path! {}", entry.getKey());
+                    continue;
+                }
+
                 byte[] data = entry.getValue().readAllBytes();
 
                 if (relativePath.isBlank()) {

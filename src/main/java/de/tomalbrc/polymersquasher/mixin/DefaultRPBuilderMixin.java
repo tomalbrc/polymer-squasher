@@ -1,5 +1,7 @@
 package de.tomalbrc.polymersquasher.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import de.tomalbrc.polymersquasher.impl.FileHashes;
 import de.tomalbrc.polymersquasher.impl.ModConfig;
 import de.tomalbrc.polymersquasher.impl.Util;
@@ -11,25 +13,20 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;
+import java.util.function.Consumer;
 
 @Mixin(value = DefaultRPBuilder.class, remap = false)
 public class DefaultRPBuilderMixin {
-
-    @Shadow @Final private HashMap<String, PackResource> fileMap;
-
     @Shadow @Final private List<ResourcePackBuilder.ResourceConverter> converters;
 
     // oh god... anyway
-    @Inject(method = "lambda$buildResourcePack$16", at = @At(value = "INVOKE", target = "Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$OutputGenerator;generateFile(Ljava/util/List;Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$ResourceConverter;Ljava/util/function/Consumer;)Z"), cancellable = true)
-    private void po$onWrite(CallbackInfoReturnable<CompletableFuture<Boolean>> cir) {
+    @WrapOperation(method = "lambda$buildResourcePack$16", at = @At(value = "INVOKE", target = "Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$OutputGenerator;generateFile(Ljava/util/List;Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$ResourceConverter;Ljava/util/function/Consumer;)Z"))
+    private boolean po$onWrite(ResourcePackBuilder.OutputGenerator instance, List<Map.Entry<String, PackResource>> fileMap, ResourcePackBuilder.ResourceConverter resourceConverter, Consumer<String> stringConsumer, Operation<Boolean> original) {
         if (ModConfig.getInstance().enabled) {
             FileHashes.load();
 
@@ -46,7 +43,7 @@ public class DefaultRPBuilderMixin {
                 } catch (IOException ignored) {}
 
                 if (outputPath.toFile().exists()) {
-                    cir.setReturnValue(CompletableFuture.completedFuture(true));
+                    return true;
                 }
                 else {
                     try {
@@ -57,5 +54,6 @@ public class DefaultRPBuilderMixin {
 
             FileHashes.save();
         }
+        return original.call(instance, fileMap, resourceConverter, stringConsumer);
     }
 }
