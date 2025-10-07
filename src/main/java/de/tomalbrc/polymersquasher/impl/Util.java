@@ -1,6 +1,8 @@
 package de.tomalbrc.polymersquasher.impl;
 
 import de.tomalbrc.polymersquasher.PolymerSquasher;
+import eu.pb4.polymer.resourcepack.api.PackResource;
+import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -30,12 +32,12 @@ public class Util {
     /**
      * Returns true if changes to the rp were made
      */
-    public static boolean writeToDirectory(Map<String, byte[]> fileMap, List<BiFunction<String, byte[], byte[]>> converters) {
+    public static boolean writeToDirectory(Map<String, PackResource> fileMap, List<ResourcePackBuilder.ResourceConverter> converters) {
         boolean dirty = false;
         try {
-            for (Map.Entry<String, byte[]> entry : fileMap.entrySet()) {
+            for (Map.Entry<String, PackResource> entry : fileMap.entrySet()) {
                 String relativePath = entry.getKey();
-                byte[] data = entry.getValue();
+                byte[] data = entry.getValue().readAllBytes();
 
                 if (relativePath.isBlank()) {
                     var s = new String(data);
@@ -51,7 +53,11 @@ public class Util {
 
                     if (data != null) {
                         for (var conv : converters) {
-                            data = conv.apply(relativePath, data);
+                            var converted = conv.convert(relativePath, entry.getValue());
+                            if (converted == null)
+                                break;
+
+                            data = converted.readAllBytes();
                             if (data == null) break;
                         }
                     }
@@ -72,7 +78,6 @@ public class Util {
             }
         } catch (IOException e) {
             PolymerSquasher.LOGGER.warn("Failed to write to directory!", e);
-            e.printStackTrace();
             return false;
         }
 
