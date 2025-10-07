@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 
 @Mixin(value = DefaultRPBuilder.class, remap = false)
 public class DefaultRPBuilderMixin {
-    @Shadow @Final private List<ResourcePackBuilder.ResourceConverter> converters;
 
     // oh god... anyway
     @WrapOperation(method = "lambda$buildResourcePack$16", at = @At(value = "INVOKE", target = "Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$OutputGenerator;generateFile(Ljava/util/List;Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$ResourceConverter;Ljava/util/function/Consumer;)Z"))
@@ -30,7 +29,7 @@ public class DefaultRPBuilderMixin {
         if (ModConfig.getInstance().enabled) {
             FileHashes.load();
 
-            var hadChange = Util.writeToDirectory(fileMap, converters);
+            var hadChange = Util.writeToDirectory(fileMap, resourceConverter);
             boolean success = true;
             if (hadChange) {
                 success = Util.runPackSquash(Util.MIN_FILE);
