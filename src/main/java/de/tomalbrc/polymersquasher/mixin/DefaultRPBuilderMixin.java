@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Mixin(value = DefaultRPBuilder.class, remap = false)
 public class DefaultRPBuilderMixin {
@@ -27,7 +28,7 @@ public class DefaultRPBuilderMixin {
     @Shadow @Final private List<ResourcePackBuilder.ResourceConverter> converters;
 
     @Inject(method = "buildResourcePack", at = @At("HEAD"), cancellable = true)
-    private void po$onWrite(CallbackInfoReturnable<Boolean> cir) {
+    private void po$onWrite(CallbackInfoReturnable<CompletableFuture<Boolean>> cir) {
         if (ModConfig.getInstance().enabled) {
             FileHashes.load();
 
@@ -44,7 +45,7 @@ public class DefaultRPBuilderMixin {
                 } catch (IOException ignored) {}
 
                 if (outputPath.toFile().exists()) {
-                    cir.setReturnValue(true);
+                    cir.setReturnValue(CompletableFuture.completedFuture(true));
                 }
                 else {
                     try {
