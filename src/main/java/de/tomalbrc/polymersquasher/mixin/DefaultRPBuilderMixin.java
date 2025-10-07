@@ -27,7 +27,8 @@ public class DefaultRPBuilderMixin {
 
     @Shadow @Final private List<ResourcePackBuilder.ResourceConverter> converters;
 
-    @Inject(method = "buildResourcePack", at = @At("HEAD"), cancellable = true)
+    // oh god... anyway
+    @Inject(method = "lambda$buildResourcePack$16", at = @At(value = "INVOKE", target = "Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$OutputGenerator;generateFile(Ljava/util/List;Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$ResourceConverter;Ljava/util/function/Consumer;)Z"), cancellable = true)
     private void po$onWrite(CallbackInfoReturnable<CompletableFuture<Boolean>> cir) {
         if (ModConfig.getInstance().enabled) {
             FileHashes.load();
