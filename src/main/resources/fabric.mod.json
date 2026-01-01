@@ -6,7 +6,7 @@
   "description": "",
   "authors": [],
   "contact": {},
-  "license": "LGPL-3.0",
+  "license": "MIT",
   "icon": "ps-icon.png",
   "environment": "server",
   "entrypoints": {
