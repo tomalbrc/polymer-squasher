@@ -1,7 +1,6 @@
 package de.tomalbrc.polymersquasher.impl;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import de.tomalbrc.polymersquasher.PolymerSquasher;
