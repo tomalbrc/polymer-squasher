@@ -14,12 +14,31 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class Util {
     public static final Path PACK = FabricLoader.getInstance().getGameDir().resolve("polymer/pack");
     public static final Path MIN_FILE = FabricLoader.getInstance().getGameDir().resolve("polymer/resource_pack.min.zip");
+
+    public static void deleteDirectoryRecursively(Path path) {
+        if (Files.exists(path)) {
+            try (Stream<Path> walk = Files.walk(path)) {
+                walk.sorted(Comparator.reverseOrder())
+                        .forEach(p -> {
+                            try {
+                                Files.delete(p);
+                            } catch (IOException e) {
+                                PolymerSquasher.LOGGER.warn("Failed to delete path: " + p, e);
+                            }
+                        });
+            } catch (IOException e) {
+                PolymerSquasher.LOGGER.warn("Failed to walk directory: " + path, e);
+            }
+        }
+    }
 
     public static boolean runPackSquash(Path outputPath) {
         try {
@@ -34,11 +53,8 @@ public class Util {
         return true;
     }
 
-    /**
-     * Returns true if changes to the rp were made
-     */
-    public static boolean writeToDirectory(List<Map.Entry<String, PackResource>> fileMap, ResourcePackBuilder.ResourceConverter converter) {
-        boolean dirty = false;
+    public static void writeToDirectory(List<Map.Entry<String, PackResource>> fileMap, ResourcePackBuilder.ResourceConverter converter) {
+        FileHashes.clear();
         try {
             for (Map.Entry<String, PackResource> entry : fileMap) {
                 String relativePath = entry.getKey();
@@ -76,28 +92,18 @@ public class Util {
                         if (!newPack.has("pack_format")) newPack.getAsJsonObject().add("pack_format", new JsonPrimitive(64));
                         json.add("pack", newPack);
                         data = new Gson().toJson(json).getBytes(StandardCharsets.UTF_8);
-
                     }
 
                     if (data != null) {
+                        FileHashes.add(relativePath, data);
                         Files.createDirectories(fullPath.getParent());
-
-                        if (fullPath.toFile().exists()) {
-                            var e = FileHashes.addExists(relativePath, data);
-                            if (e)
-                                continue;
-                        }
-
                         Files.write(fullPath, data);
-                        dirty = true;
                     }
                 }
             }
         } catch (IOException e) {
             PolymerSquasher.LOGGER.warn("Failed to write to directory!", e);
-            return false;
         }
-
-        return dirty;
     }
 }
+
