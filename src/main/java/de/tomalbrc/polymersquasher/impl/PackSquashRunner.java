@@ -28,7 +28,7 @@ public final class PackSquashRunner {
             InputStream stdout = new BufferedInputStream(process.getInputStream());
 
             stdin.write(("pack_directory = \"polymer/pack\"\n").getBytes(StandardCharsets.UTF_8));
-            stdin.write(("output_file_path = \"" + outputZip.toString() + "\"\n").getBytes(StandardCharsets.UTF_8));
+            stdin.write(("output_file_path = \"" + outputZip.toString().replace("\\", "/") + "\"\n").getBytes(StandardCharsets.UTF_8));
             settingsStream.transferTo(stdin);
             stdin.close();
 

@@ -21,6 +21,6 @@
     "fabricloader": "*",
     "fabric": "*",
     "polymer-resource-pack": "*",
-    "minecraft": ">=1.21.11-"
+    "minecraft": ">=1.21.9 <=1.21.11"
   }
 }
