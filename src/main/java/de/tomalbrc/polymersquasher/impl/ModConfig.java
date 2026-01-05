@@ -25,9 +25,6 @@ public class ModConfig {
     @SerializedName("log-packsquash")
     public boolean log = false;
 
-    @SerializedName("log-hash-mismatch")
-    public boolean logMismatch = false;
-
     @SerializedName("packsquash-path")
     public String packsquash = "polymer/packsquash";
 
