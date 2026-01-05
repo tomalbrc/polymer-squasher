@@ -1,28 +1,31 @@
-# Polymer PackSquash Integration
+# Polymer PackSquash
 
-This mod integrates [PackSquash](https://packsquash.dev) with Polymer’s resource pack generation to automatically optimize generated resource packs so you don't have to manually compress after changes.
+Automatic resource pack optimization for Polymer using [PackSquash](https://packsquash.aylas.org/).
 
----
+## Features
 
-## Setup
+- Automatically compresses Polymer-generated resource packs
+- Smart caching - only reprocesses when files change
+- Configurable file hashing and ignore patterns
+- Seamless integration with Polymer's build pipeline
 
-- Get the latest [PackSquash release](https://github.com/ComunidadAylas/PackSquash/releases).
-- Place the binary here:
+## Installation
 
-  ```
-  polymer/packsquash
-  ```
+1. Download [PackSquash](https://github.com/ComunidadAylas/PackSquash/releases) for your platform
+2. Place the binary in your server directory:
+   - **Linux/Mac**: `polymer/packsquash`
+   - **Windows**: `polymer/packsquash.exe`
+3. Start your server
 
-- The mod will automatically create a `packsquash.toml` in the `polymer` folder.
+The mod will automatically generate `polymer/packsquash.toml` on first run.
 
-These are the default paths the mod will use. You can adjust them in the configuration file `config/polymer-squasher.json`
+## Configuration
 
-### Default config
+Located at `config/polymer-squasher.json`:
 ```json
 {
   "enabled": true,
   "log-packsquash": false,
-  "log-hash-mismatch": false,
   "packsquash-path": "polymer/packsquash",
   "packsquash-toml-path": "polymer/packsquash.toml",
   "ignore-hash-paths": [
@@ -32,24 +35,46 @@ These are the default paths the mod will use. You can adjust them in the configu
 }
 ```
 
-## Config options
+### Options
 
-- **enabled** — turn the integration on/off.  
-- **log-packsquash** — print PackSquash output to the log.  
-- **log-hash-mismatch** — log when a file’s hash changes (useful for debugging).  
-- **packsquash-path** — path to the PackSquash binary.  
-- **packsquash-toml-path** — path to the PackSquash TOML config file.  
-- **ignore-hash-paths** — list of path **prefixes** to skip when hashing.  
-- **force-size-based-hash** — if `true`, the mod will use file size instead of a full hash (faster, less precise) 
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `enabled` | boolean | `true` | Enable PackSquash integration |
+| `log-packsquash` | boolean | `false` | Output PackSquash logs to console |
+| `packsquash-path` | string | `"polymer/packsquash"` | Path to PackSquash binary |
+| `packsquash-toml-path` | string | `"polymer/packsquash.toml"` | Path to PackSquash config |
+| `ignore-hash-paths` | array | `["polymer-credits.txt"]` | Path prefixes to exclude from hashing |
+| `force-size-based-hash` | boolean | `false` | Use file size for change detection (faster, less accurate) |
 
----
+<details>
+<summary>About <code>ignore-hash-paths</code></summary>
 
-## How it works
+Uses prefix matching to exclude files from hash checking:
+- `"polymer-credits.txt"` - ignores only this specific file
+- `"assets/mymod/"` - ignores all files in this directory  
+- `"licenses/"` - ignores all license directories
 
-When enabled, the mod will hash the generated resource pack files. The hashes are written to `polymer/hashes.json`.
+</details>
 
-If nothing has changed since the last run, PackSquash is skipped.  
+## How It Works
 
-If changes are detected, the mod will run PackSquash after Polymer finishes generating the resource pack.  
+The mod maintains a hash cache of your resource pack files in `polymer/hashes.json`.
 
-If the process completes successfully, the optimized version is used instead.
+**On server start:**
+1. Checks if resource pack files have changed since last run
+2. If unchanged, serves the cached optimized pack
+3. If changed, runs PackSquash to create a new optimized version
+4. Updates the hash cache
+
+This ensures optimal performance - PackSquash only runs when necessary, while your server always delivers an optimized resource pack.
+
+## Troubleshooting
+
+**PackSquash not running?**
+- Verify the binary path in your config
+- Ensure the binary is executable (`chmod +x polymer/packsquash` on Linux/Mac)
+- Check logs with `"log-packsquash": true`
+
+**Resource pack not updating?**
+- Delete `polymer/hashes.json` to force a rebuild
+- Check `ignore-hash-paths` isn't excluding changed files
