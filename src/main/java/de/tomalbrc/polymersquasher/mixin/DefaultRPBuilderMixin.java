@@ -25,31 +25,39 @@ public class DefaultRPBuilderMixin {
     @WrapOperation(method = "lambda$buildResourcePack$16", at = @At(value = "INVOKE", target = "Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$OutputGenerator;generateFile(Ljava/util/List;Leu/pb4/polymer/resourcepack/api/ResourcePackBuilder$ResourceConverter;Ljava/util/function/Consumer;)Z"))
     private boolean po$onWrite(ResourcePackBuilder.OutputGenerator instance, List<Map.Entry<String, PackResource>> fileMap, ResourcePackBuilder.ResourceConverter resourceConverter, Consumer<String> stringConsumer, Operation<Boolean> original) {
         if (ModConfig.getInstance().enabled) {
-            FileHashes.load();
+            boolean squashed = false;
+            try {
+                Map<String, Long> oldHashes = FileHashes.loadPreviousHashes();
+                Util.writeToDirectory(fileMap, resourceConverter);
+                Map<String, Long> newHashes = FileHashes.getHashes();
 
-            var hadChange = Util.writeToDirectory(fileMap, resourceConverter);
-            boolean success = true;
-            if (hadChange) {
-                success = Util.runPackSquash(Util.MIN_FILE);
+                var hadChange = !newHashes.equals(oldHashes);
+
+                if (hadChange) {
+                    if (Util.runPackSquash(Util.MIN_FILE)) {
+                        var outputPath = PolymerResourcePackUtils.getMainPath();
+                        try {
+                            Files.copy(Util.MIN_FILE, outputPath);
+                            squashed = outputPath.toFile().exists();
+                        } catch (IOException ignored) {}
+                    }
+                } else {
+                    if (Files.exists(Util.MIN_FILE)) {
+                        var outputPath = PolymerResourcePackUtils.getMainPath();
+                        try {
+                            Files.copy(Util.MIN_FILE, outputPath);
+                            squashed = outputPath.toFile().exists();
+                        } catch (IOException ignored) {}
+                    }
+                }
+            } finally {
+                FileHashes.save();
+                Util.deleteDirectoryRecursively(Util.PACK);
             }
 
-            if (success) {
-                var outputPath = PolymerResourcePackUtils.getMainPath();
-                try {
-                    Files.copy(Util.MIN_FILE, outputPath);
-                } catch (IOException ignored) {}
-
-                if (outputPath.toFile().exists()) {
-                    return true;
-                }
-                else {
-                    try {
-                        Files.deleteIfExists(outputPath);
-                    } catch (IOException ignored) {}
-                }
+            if (squashed) {
+                return true;
             }
-
-            FileHashes.save();
         }
         return original.call(instance, fileMap, resourceConverter, stringConsumer);
     }
