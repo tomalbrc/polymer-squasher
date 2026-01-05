@@ -1,6 +1,7 @@
 package de.tomalbrc.polymersquasher.impl;
 
 import net.fabricmc.loader.api.FabricLoader;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public final class PackSquashRunner {
             InputStream stdout = new BufferedInputStream(process.getInputStream());
 
             stdin.write(("pack_directory = \"polymer/pack\"\n").getBytes(StandardCharsets.UTF_8));
-            stdin.write(("output_file_path = \"" + outputZip.toString().replace("\\", "/") + "\"\n").getBytes(StandardCharsets.UTF_8));
+            stdin.write(("output_file_path = \"" + FilenameUtils.separatorsToUnix(outputZip.toString()) + "\"\n").getBytes(StandardCharsets.UTF_8));
             settingsStream.transferTo(stdin);
             stdin.close();
 
