@@ -1,6 +1,7 @@
 package de.tomalbrc.polymersquasher.impl;
 
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
@@ -17,28 +18,21 @@ import java.util.List;
 public class ModConfig {
     static Path CONFIG_FILE_PATH = FabricLoader.getInstance().getConfigDir().resolve("polymer-squasher.json");
     static ModConfig instance;
-    static Gson JSON = new GsonBuilder().setPrettyPrinting().create();
+    static Gson JSON = new GsonBuilder().setPrettyPrinting().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES).create();
 
-    @SerializedName("enabled")
     public boolean enabled = true;
+    public boolean logPacksquash = false;
+    public boolean logHashMismatch = false;
+    public boolean forceSizeBasedHash = false;
+    public boolean cleanup;
 
-    @SerializedName("log-packsquash")
-    public boolean log = false;
+    public List<String> ignoreHashPaths = List.of("polymer-credits.txt");
 
-    @SerializedName("log-hash-mismatch")
-    public boolean logMismatch = false;
-
-    @SerializedName("packsquash-path")
-    public String packsquash = "polymer/packsquash";
-
-    @SerializedName("packsquash-toml-path")
-    public String packsquashConfig = "polymer/packsquash.toml";
-
-    @SerializedName("ignore-hash-paths")
-    public List<String> ignoreList = List.of("polymer-credits.txt");
-
-    @SerializedName("force-size-based-hash")
-    public boolean sizeHash = false;
+    public String packsquashPath = "polymer/packsquash";
+    public String packsquashTomlPath = "polymer/packsquash.toml";
+    public String hashFilePath = "polymer/hashes.json";
+    public String resourcePackDirectory = "polymer/pack";
+    public String minifiedZipPath = "polymer/resource_pack.min.zip";
 
     public static ModConfig getInstance() {
         if (instance == null) {
@@ -47,7 +41,8 @@ public class ModConfig {
         }
         return instance;
     }
-    public static boolean load() {
+
+    static boolean load() {
         if (!CONFIG_FILE_PATH.toFile().exists()) {
             instance = new ModConfig();
             try (FileOutputStream stream = new FileOutputStream(CONFIG_FILE_PATH.toFile())) {
@@ -67,7 +62,7 @@ public class ModConfig {
         return false;
     }
 
-    private static void save() {
+    static void save() {
         try (FileOutputStream stream = new FileOutputStream(CONFIG_FILE_PATH.toFile())) {
             stream.write(JSON.toJson(instance).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {

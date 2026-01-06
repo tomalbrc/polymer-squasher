@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import de.tomalbrc.polymersquasher.PolymerSquasher;
 import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,8 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 public class FileHashes {
-    final static Path FILE = FabricLoader.getInstance().getGameDir().resolve("polymer/hashes.json");
-    static Map<String, Long> HASHES = new Object2LongLinkedOpenHashMap<>();
+    final Map<String, Long> hashes = new Object2LongLinkedOpenHashMap<>();
     final static MessageDigest MESSAGE_DIGEST;
 
     static {
@@ -29,33 +28,41 @@ public class FileHashes {
         }
     }
 
-    public static boolean addExists(String path, byte[] data) {
-        Long hashed = hash(data);
-        Long existing;
-        if ((existing = HASHES.put(path, hashed)) == null) {
-            HASHES.put(path, hashed);
-            return false;
-        } else {
-            boolean sameHash = existing.equals(hash(data));
-            if (!sameHash) {
-                HASHES.put(path, hashed);
-                if (ModConfig.getInstance().logMismatch) PolymerSquasher.LOGGER.info("Different hash: {}", path);
+    Path hashesPath() {
+        return FabricLoader.getInstance().getGameDir().resolve(ModConfig.getInstance().hashFilePath);
+    }
 
-                if (ModConfig.getInstance().ignoreList != null && !ModConfig.getInstance().ignoreList.isEmpty()) {
-                    for (String s : ModConfig.getInstance().ignoreList) {
+
+    public Long add(String path, byte[] data) {
+        Long newHash = hash(data);
+        Long existing = hashes.put(path, newHash);
+        if (existing == null) {
+            return null;
+        } else {
+            boolean sameHash = existing.equals(newHash);
+
+            if (!sameHash) {
+                if (ModConfig.getInstance().logHashMismatch)
+                    PolymerSquasher.LOGGER.info("Different hash: {}", path);
+
+                if (ModConfig.getInstance().ignoreHashPaths != null) {
+                    for (String s : ModConfig.getInstance().ignoreHashPaths) {
                         if (path.startsWith(s)) {
                             PolymerSquasher.LOGGER.info("Ignoring hash mismatch for {}", path);
-                            return true;
+                            return null;
                         }
                     }
                 }
+
+                hashes.put(path, newHash);
             }
-            return sameHash;
+
+            return newHash;
         }
     }
 
     public static Long hash(byte[] data) {
-        if (ModConfig.getInstance().sizeHash)
+        if (ModConfig.getInstance().forceSizeBasedHash)
             return (long) data.length;
 
         MESSAGE_DIGEST.update(data);
@@ -71,25 +78,27 @@ public class FileHashes {
         return value;
     }
 
-    public static void load() {
+    public void load() {
         Gson gson = new Gson();
-        Type type = new TypeToken<Map<String, Long>>() {}.getType();
-        try (FileReader reader = new FileReader(FILE.toFile())) {
-            HASHES = gson.fromJson(reader, type);
-        } catch (FileNotFoundException ignored) {
+        Type type = new TypeToken<@NotNull Map<String, Long>>() {}.getType();
+        try (FileReader reader = new FileReader(hashesPath().toFile())) {
+            Map<String, Long> map = gson.fromJson(reader, type);
+            this.hashes.clear();
+            this.hashes.putAll(map);
+        } catch (Exception ignored) {}
+    }
 
-        }  catch (Exception e) {
-            e.printStackTrace();
+    public void save() {
+        Gson gson = new Gson();
+        try (FileWriter writer = new FileWriter(hashesPath().toFile())) {
+            gson.toJson(hashes, writer);
+            PolymerSquasher.LOGGER.info("Hashed {} files", this.hashes.size());
+        } catch (IOException e) {
+            PolymerSquasher.LOGGER.error("Could not save hashes!", e);
         }
     }
 
-    public static void save() {
-        Gson gson = new Gson();
-        try (FileWriter writer = new FileWriter(FILE.toFile())) {
-            gson.toJson(HASHES, writer);
-            PolymerSquasher.LOGGER.info("Hashed {} files", HASHES.size());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void remove(String string) {
+        hashes.remove(string);
     }
 }

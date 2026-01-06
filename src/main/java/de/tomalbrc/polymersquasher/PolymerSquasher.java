@@ -2,6 +2,7 @@ package de.tomalbrc.polymersquasher;
 
 import com.mojang.logging.LogUtils;
 import de.tomalbrc.polymersquasher.impl.ModConfig;
+import de.tomalbrc.polymersquasher.impl.Runner;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -13,16 +14,18 @@ import java.nio.file.StandardCopyOption;
 public class PolymerSquasher implements ModInitializer {
     public static Logger LOGGER = LogUtils.getLogger();
 
+    public static Runner runner = new Runner();
+
     @Override
     public void onInitialize() {
         copyToml();
 
-        ServerLifecycleEvents.START_DATA_PACK_RELOAD.register((minecraftServer, closeableResourceManager) -> ModConfig.load());
+        ServerLifecycleEvents.START_DATA_PACK_RELOAD.register((minecraftServer, closeableResourceManager) -> runner.reload());
     }
 
     private void copyToml() {
         var tomlName = "packsquash.toml";
-        var packsquashConfigPath = FabricLoader.getInstance().getGameDir().resolve(ModConfig.getInstance().packsquashConfig);
+        var packsquashConfigPath = FabricLoader.getInstance().getGameDir().resolve(ModConfig.getInstance().packsquashTomlPath);
         var parent = packsquashConfigPath.getParent();
         if ((((!parent.toFile().exists() && parent.toFile().mkdirs()) || parent.toFile().exists())) && !packsquashConfigPath.toFile().exists()) {
             try (var toml = PolymerSquasher.class.getResourceAsStream("/" + tomlName)) {
