@@ -50,31 +50,36 @@ public final class Runner {
 
         ProcessBuilder processBuilder = new ProcessBuilder(packsquashExecutable.toAbsolutePath().toString());
         processBuilder.directory(workingDir.toFile());
-        processBuilder.inheritIO();
-        processBuilder.redirectInput(ProcessBuilder.Redirect.PIPE);
-        if (ModConfig.getInstance().logPacksquash) processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
-        else processBuilder.redirectOutput(ProcessBuilder.Redirect.DISCARD);
         processBuilder.redirectErrorStream(true);
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+        processBuilder.redirectInput(ProcessBuilder.Redirect.PIPE);
+        Process process = processBuilder.start();
 
-        try (InputStream settingsStream = Files.newInputStream(packsquashToml)) {
-            Process process = processBuilder.start();
-            OutputStream stdin = process.getOutputStream();
-            InputStream stdout = new BufferedInputStream(process.getInputStream());
+        try (OutputStream stdin = process.getOutputStream()) {
+            String packDirLine = "pack_directory = \"" + FilenameUtils.separatorsToUnix(this.packDirectory.toString()) + "\"\n";
+            String outPathLine = "output_file_path = \"" + FilenameUtils.separatorsToUnix(this.minZip.toString()) + "\"\n";
 
-            stdin.write(("pack_directory = \""+ FilenameUtils.separatorsToUnix(this.packDirectory.toString()) +"\"\n").getBytes(StandardCharsets.UTF_8));
-            stdin.write(("output_file_path = \"" + FilenameUtils.separatorsToUnix(this.minZip.toString()) + "\"\n").getBytes(StandardCharsets.UTF_8));
-            settingsStream.transferTo(stdin);
-            stdin.close();
+            stdin.write(packDirLine.getBytes(StandardCharsets.UTF_8));
+            stdin.write(outPathLine.getBytes(StandardCharsets.UTF_8));
 
-            int b;
-            while ((b = stdout.read()) != -1) {
-                System.out.write(b);
+            Files.copy(packsquashToml, stdin);
+
+            stdin.flush();
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (ModConfig.getInstance().logPacksquash) {
+                    PolymerSquasher.LOGGER.info("[PackSquash] {}", line);
+                }
             }
+        }
 
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new RuntimeException("PackSquash exited with code " + exitCode);
-            }
+        int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            PolymerSquasher.LOGGER.error("PackSquash execution failed with exit code: {}", exitCode);
+            throw new RuntimeException("PackSquash exited with code " + exitCode);
         }
     }
 
@@ -89,7 +94,6 @@ public final class Runner {
             for (Map.Entry<String, PackResource> entry : fileMap) {
                 String relativePath = entry.getKey();
                 if (entry.getValue() == null) {
-                    PolymerSquasher.LOGGER.info("Found empty data for path '{}', skipping.", entry.getKey());
                     continue;
                 }
 
@@ -128,11 +132,9 @@ public final class Runner {
 
                         Files.createDirectories(fullPath.getParent());
 
-                        if (fullPath.toFile().exists()) {
-                            Long e = this.hashes.add(relativePath, data);
-                            if (e == null)
-                                continue;
-                        }
+                        Long e = this.hashes.add(relativePath, data);
+                        if (e == null)
+                            continue;
 
                         Files.write(fullPath, data);
                         dirty = true;

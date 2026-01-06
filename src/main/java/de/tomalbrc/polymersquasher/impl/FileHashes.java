@@ -37,7 +37,7 @@ public class FileHashes {
         Long newHash = hash(data);
         Long existing = hashes.put(path, newHash);
         if (existing == null) {
-            return null;
+            return newHash;
         } else {
             boolean sameHash = existing.equals(newHash);
 
@@ -55,9 +55,11 @@ public class FileHashes {
                 }
 
                 hashes.put(path, newHash);
+
+                return newHash;
             }
 
-            return newHash;
+            return null;
         }
     }
 

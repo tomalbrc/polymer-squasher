@@ -5,7 +5,7 @@
 # spans until the end of the line
 
 # Global options
-# pack_directory & output_file_path are automatically set by Nexo
+# pack_directory & output_file_path are automatically set
 # No need to specify a path in either
 #pack_directory = ''
 #output_file_path = ''

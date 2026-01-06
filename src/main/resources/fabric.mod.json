@@ -3,8 +3,10 @@
   "id": "polymer-squasher",
   "version": "${version}",
   "name": "polymer-squasher",
-  "description": "",
-  "authors": [],
+  "description": "Polymer RP packsquash runner",
+  "authors": [
+    "tomalbrc", "FaNt4zMa"
+  ],
   "contact": {},
   "license": "MIT",
   "icon": "ps-icon.png",
