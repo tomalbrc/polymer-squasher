@@ -103,4 +103,8 @@ public class FileHashes {
     public void remove(String string) {
         hashes.remove(string);
     }
+
+    public void clear() {
+        hashes.clear();
+    }
 }

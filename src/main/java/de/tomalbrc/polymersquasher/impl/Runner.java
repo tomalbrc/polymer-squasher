@@ -163,6 +163,11 @@ public final class Runner {
     }
 
     public void cleanup(List<Map.Entry<String, PackResource>> fileMap) {
+        if (!Files.exists(packDirectory)) {
+            hashes.clear();
+            return;
+        }
+
         try {
             var packPaths = Files.walk(packDirectory);
             var filepaths = fileMap.stream().map(Map.Entry::getKey).collect(Collectors.toSet());
